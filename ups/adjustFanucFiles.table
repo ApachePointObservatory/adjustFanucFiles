@@ -1,0 +1,4 @@
+setupRequired(fitPlugPlateMeas)
+setupRequired(RO)
+
+pathPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
