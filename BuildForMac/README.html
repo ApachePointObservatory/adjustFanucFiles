@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<title>BuildForMac README</title>
+</head>
+<body>
+<h2>BuildForMac README</h2>
+
+<p>To build a Mac OS X application:<pre>
+% python setup.py [--quiet] py2app
+</pre>
+
+<p>Notes:
+<ul>
+	<li>Requires the following python packages
+	<ul>
+	    <li>py2app, available from <a href="http://pythonmac.org/packages/">http://pythonmac.org/packages/</a>.
+	    <li><a href="http://pypi.python.org/pypi?:action=display&amp;name=RO">RO Package</a>
+	    <li><a href="http://www.scipy.org/">scipy</a>
+	    <li><a href="http://numpy.scipy.org/">numpy</a>
+	    <li>The fitPlugPlateMeas package from svn+ssh://sdss3svn@sdss3.org/repo/platemeas/fitPlugPlateMeas
+	</ul>
+	<li>I recommend that you manage RO and fitPlugPlateMeas using eups; alternatively you can put both packages on your python path or specify their paths in a file named extraPaths.txt in the BuildForMac directory.
+	<li>If you install your own Python then it will be included in the package, which makes it more portable. See <a href="http://www.python.org/download/download_mac.html">Python on the Macintosh</a> for information.
+</ul>
+
+</body>
+</html>

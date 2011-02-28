@@ -1,0 +1,6 @@
+# sample configuration file
+# to be used it must be in your home directory
+# and renamed with a leading period (~/.adjustFanucFiles.dat)
+[quadrupole]
+mag = 32.0e-6
+angle = -38.33

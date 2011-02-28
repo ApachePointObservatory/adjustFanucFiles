@@ -16,6 +16,7 @@ import scipy.optimize
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import RO.Constants
+import RO.OS
 import RO.StringUtil
 import RO.Wdg
 import fitPlugPlateMeas.fitData as fitData
@@ -30,7 +31,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
     
     Apples a Quadrupole correction to the hole positions.
     
-    The coefficients are contained in config.dat, which must have INI file format:
+    The coefficients are contained in ~/.adjustFanucFiles.dat, which must have INI file format:
     [quadrupole]
     mag: <quadrupole magnitude>
     angle: <quadrupole angle in deg>
@@ -52,14 +53,16 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         self.numDig = 4 # number of digits after the decimal point for adjusted positions
 
         self.logWdg.addMsg("""Adjust Fanuc Files version %s""" % (__version__,))
-
+        
+        homeDir = RO.OS.getHomeDir()
         config = ConfigParser.RawConfigParser()
-        configPath = "config.dat"
+        configPath = os.path.join(homeDir, ".adjustFanucFiles.dat")
         try:
             config.read(configPath)
             qpMag = config.getfloat("quadrupole", "mag")
             qpAngle = config.getfloat("quadrupole", "angle")
             
+            self.logWdg.addMsg("Config file: %s" % (configPath,))
             self.logWdg.addMsg("Quadrupole magnitude = %s, angle = %s deg" % (qpMag, qpAngle))
 
             self.model = fitData.QuadrupoleModel()
@@ -79,16 +82,17 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         Convert lines that look like this:
         ...G60 X... Y... ...
         """
-        fileName = os.path.basename(filePath)
+        fileDir, fileName = os.path.split(filePath)
         
         baseName, ext = os.path.splitext(fileName)
         if ext.lower() != ".par":
             raise RuntimeError("Filename must end with .par")
-        outFilePath = "%sAdjusted%s" % (baseName, ext)
+        outFileName = "%sAdjusted%s" % (baseName, ext)
+        outFilePath = os.path.join(fileDir, outFileName)
         
         qpMag, qpAngle = self.model.getMagnitudeAngle()
             
-        self.logWdg.addMsg("Converting %s to %s" % (fileName, outFilePath))
+        self.logWdg.addMsg("Converting %s to %s" % (fileName, outFileName))
         adjComment = "(Adjusted qpMag=%s qpAngle=%s)\n" % (qpMag, qpAngle,)
         lineNum = 0
         with file(filePath, "rU") as inFile:
