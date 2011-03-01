@@ -4,6 +4,9 @@ from __future__ import with_statement
 
 History:
 2011-02-25 ROwen
+2011-03-01 ROwen    Modified to handle mm or inches, or a mix.
+                    Modified to ignore "Unadjusted" in file names when generating output file names.
+                    Present a clearer error message if the configuration data file is missing.
 """
 import math
 import os.path
