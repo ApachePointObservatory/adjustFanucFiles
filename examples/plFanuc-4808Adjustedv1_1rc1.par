@@ -1,6 +1,6 @@
 %
 O4808(SDSS PLUG-PLATE 4808)
-(Adjusted qpMag=3.2e-05 qpAngle=-38.33)
+(Adjusted qpMag=3.2e-05 qpAngle=-38.33 version=1.1rc1)
 (Drilling temperature  68.0 degrees F)
 (INPUT FILE NAME: plPlugMapP-4808.par)
 (CNC PROGRAM NAME: plFanuc-4808.par)
