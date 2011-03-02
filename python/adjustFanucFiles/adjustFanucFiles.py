@@ -110,7 +110,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         # and accumulating the output, then write it all at once;
         # that way if there is an error in the input file, no output file is written
         self.logWdg.addMsg("Converting %s to %s" % (fileName, outFileName))
-        adjComment = "(Adjusted qpMag=%s qpAngle=%s)\n" % (qpMag, qpAngle,)
+        adjComment = "(Adjusted qpMag=%s qpAngle=%s version=%s)\n" % (qpMag, qpAngle, __version__)
         lineNum = 0
         outDataList = []
         with file(filePath, "rU") as inFile:
