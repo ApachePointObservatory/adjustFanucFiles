@@ -7,6 +7,9 @@ History:
 2011-03-01 ROwen    Modified to handle mm or inches, or a mix.
                     Modified to ignore "Unadjusted" in file names when generating output file names.
                     Present a clearer error message if the configuration data file is missing.
+2011-03-04 ROwen    Modified to always output 5 digits after the decimal point (and ignore inches vs. mm)
+                    since the Fanuc controllers can take the extra digits.
+                    When naming output files put Adjusted right after plFanuc if possible.
 """
 import math
 import os.path
@@ -24,10 +27,7 @@ import RO.StringUtil
 import RO.Wdg
 import fitPlugPlateMeas.fitData as fitData
 
-__version__ = "1.1rc1"
-
-plateIDRE = re.compile(r"^Plug Plate: ([0-9a-zA-Z_]+) *(?:#.*)?$", re.IGNORECASE)
-measDateRE = re.compile(r"^Date: ([0-9-]+) *(?:#.*)?$", re.IGNORECASE)
+__version__ = "1.1rc2"
 
 class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
     """Adjust plFanuc drilling files to compensate for systematic errors in the drilling machine.
@@ -50,11 +50,8 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             master = master,
             width = 135,
             height = 20,
-            font = "Courier 12", # want a fixed width font
         )
         
-        self.numDig = None # number of digits after decimal point for adjusted positions: 3 for mm, 4 for inches
-
         self.logWdg.addMsg("""Adjust Fanuc Files version %s""" % (__version__,))
         
         homeDir = RO.OS.getHomeDir()
@@ -77,9 +74,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             self.logWdg.addMsg("Error reading %s: %s" % (configPath, RO.StringUtil.strFromException(e)), severity=RO.Constants.sevError)
             self.logWdg.addMsg("Please quit, fix the config file and try again", severity=RO.Constants.sevError)
 
-        self.fileNameSubRE = re.compile("(.*)unadjusted(.*)", re.IGNORECASE)
-        self.inchesRE = re.compile(r"^[^(]*\bG20\b")
-        self.mmRE     = re.compile(r"^[^(]*\bG21\b")
+        self.fileNameSubRE = re.compile("plFanuc(?:Unadjusted)?(.*)", re.IGNORECASE)
         self.xyPosRE  = re.compile(r"^(.* )X([-0-9.]+) +Y([-0-9.]+)( .*)?$")
             
         if filePathList:
@@ -100,8 +95,10 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             raise RuntimeError("Filename must end with .par")
         
         # output name = input name - "Unadjusted" + "Adjusted"
-        outBaseName = self.fileNameSubRE.sub(r"\1\2", baseName)
-        outFileName = "%sAdjusted%s" % (outBaseName, ext)
+        outBaseName = self.fileNameSubRE.sub(r"plFanucAdjusted\1", baseName)
+        if outBaseName == baseName:
+            outBaseName = outFileName + "Adjusted"
+        outFileName = outBaseName + ext
         outFilePath = os.path.join(fileDir, outFileName)
         
         qpMag, qpAngle = self.model.getMagnitudeAngle()
@@ -121,18 +118,12 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
                     outDataList.append(adjComment)
                 if line.lower().startswith("(adjusted"):
                     raise RuntimeError("File has already been adjusted!")
-                if self.mmRE.match(line):
-                    self.numDig = 3
-                elif self.inchesRE.match(line):
-                    self.numDig = 4
                 match = self.xyPosRE.match(line)
                 if match:
-                    if not self.numDig:
-                        raise RuntimeError("Cannot write modified x,y position: have not seen G20 or G21")
                     prefix, xPos, yPos, postfix = match.groups("")
                     adjXYPos = self.model.applyOne([xPos, yPos], doInverse=True)
-                    outDataList.append("%sX%0.*f Y%0.*f%s\n" % \
-                        (prefix, self.numDig, adjXYPos[0], self.numDig, adjXYPos[1], postfix))
+                    outDataList.append("%sX%0.5f Y%0.5f%s\n" % \
+                        (prefix, adjXYPos[0], adjXYPos[1], postfix))
                     numAdj += 1
                 else:
                     outDataList.append(line)
