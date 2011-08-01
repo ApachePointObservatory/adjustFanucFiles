@@ -51,14 +51,20 @@ plist = dict(
     CFBundleGetInfoString       = "%s %s" % (appName, versStr),
     CFBundleDocumentTypes       = [
         dict(
-            CFBundleTypeName = "TEXT",
+            CFBundleTypeName = "File",
+            CFBundleTypeRole = "Editor",
             LSItemContentTypes = [
                 "public.plain-text",
                 "public.text",
                 "public.data",
-                "com.apple.application-bundle",
             ],
+        ),
+        dict(
+            CFBundleTypeName = "Folder",
             CFBundleTypeRole = "Viewer",
+            LSItemContentTypes = [
+				"public.folder",
+            ],
         ),
     ],
     LSPrefersPPC                = False,
