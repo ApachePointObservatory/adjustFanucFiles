@@ -10,6 +10,10 @@ History:
 2011-03-04 ROwen    Modified to always output 5 digits after the decimal point (and ignore inches vs. mm)
                     since the Fanuc controllers can take the extra digits.
                     When naming output files put Adjusted right after plFanuc if possible.
+2011-08-01 ROwen    Version 1.2:
+                    Modified to skip files whose name does not match plDrillPos*.par.
+                    Modified to not overwrite existing files and log a warning instead.
+                    Bug fix: if the name didn't contain "Unadjusted" then an error occurred.
 """
 import math
 import os.path
@@ -27,7 +31,7 @@ import RO.StringUtil
 import RO.Wdg
 import fitPlugPlateMeas.fitData as fitData
 
-__version__ = "1.1rc2"
+__version__ = "1.2"
 
 class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
     """Adjust plFanuc drilling files to compensate for systematic errors in the drilling machine.
@@ -50,6 +54,10 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             master = master,
             width = 135,
             height = 20,
+            recursionDepth = 1,
+            patterns = "plFanuc*.par",
+            exclPatterns = "*Adjusted*.par",
+            exclDirPatterns = ".*",
         )
         
         self.logWdg.addMsg("""Adjust Fanuc Files version %s""" % (__version__,))
@@ -91,15 +99,17 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         fileDir, fileName = os.path.split(filePath)
         
         baseName, ext = os.path.splitext(fileName)
-        if ext.lower() != ".par":
-            raise RuntimeError("Filename must end with .par")
         
         # output name = input name - "Unadjusted" + "Adjusted"
         outBaseName = self.fileNameSubRE.sub(r"plFanucAdjusted\1", baseName)
         if outBaseName == baseName:
-            outBaseName = outFileName + "Adjusted"
+            outBaseName = outBaseName + "Adjusted"
         outFileName = outBaseName + ext
         outFilePath = os.path.join(fileDir, outFileName)
+        
+        if os.path.exists(outFilePath):
+            self.logWdg.addMsg("Skipping %s: %s already exists" % (fileName, outFileName), severity=RO.Constants.sevWarning)
+            return
         
         qpMag, qpAngle = self.model.getMagnitudeAngle()
 
