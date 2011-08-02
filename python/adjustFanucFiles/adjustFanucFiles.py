@@ -14,6 +14,7 @@ History:
                     Modified to skip files whose name does not match plDrillPos*.par.
                     Modified to not overwrite existing files and log a warning instead.
                     Bug fix: if the name didn't contain "Unadjusted" then an error occurred.
+2011-08-02 ROwen    Improved testing of adjusted files.
 """
 import math
 import os.path
@@ -31,7 +32,7 @@ import RO.StringUtil
 import RO.Wdg
 import fitPlugPlateMeas.fitData as fitData
 
-__version__ = "1.2"
+__version__ = "1.2.1"
 
 class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
     """Adjust plFanuc drilling files to compensate for systematic errors in the drilling machine.
@@ -56,7 +57,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             height = 20,
             recursionDepth = 1,
             patterns = "plFanuc*.par",
-            exclPatterns = "*Adjusted*.par",
+            exclPatterns = "plFanucAdjusted*.par",
             exclDirPatterns = ".*",
         )
         
@@ -99,6 +100,12 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         fileDir, fileName = os.path.split(filePath)
         
         baseName, ext = os.path.splitext(fileName)
+
+        # reject files with "adjusted" in their name without rejecting "unadjusted";
+        # this test is for files where "adjusted" is in an odd location
+        lowBaseName = baseName.lower()
+        if "adjusted" in lowBaseName and "unadjusted" not in lowBaseName:
+            return
         
         # output name = input name - "Unadjusted" + "Adjusted"
         outBaseName = self.fileNameSubRE.sub(r"plFanucAdjusted\1", baseName)
@@ -116,7 +123,6 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
         # process the file by first reading in all the original data
         # and accumulating the output, then write it all at once;
         # that way if there is an error in the input file, no output file is written
-        self.logWdg.addMsg("Converting %s to %s" % (fileName, outFileName))
         adjComment = "(Adjusted qpMag=%s qpAngle=%s version=%s)\n" % (qpMag, qpAngle, __version__)
         lineNum = 0
         outDataList = []
@@ -126,8 +132,9 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
                 lineNum += 1
                 if lineNum == 3:
                     outDataList.append(adjComment)
-                if line.lower().startswith("(adjusted"):
-                    raise RuntimeError("File has already been adjusted!")
+                if line.lstrip().lower().startswith("(adjusted"):
+                    self.logWdg.addMsg("Skipping %s: already adjusted" % (fileName,), severity=RO.Constants.sevWarning)
+                    return
                 match = self.xyPosRE.match(line)
                 if match:
                     prefix, xPos, yPos, postfix = match.groups("")
@@ -141,7 +148,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             for line in outDataList:
                 outFile.write(line)
         
-        self.logWdg.addMsg("    adjusted %s x,y positions" % (numAdj,))
+        self.logWdg.addMsg("Wrote %s; adjusted %s x,y positions from %s" % (outFileName, numAdj, fileName))
 
 if __name__ == "__main__":
     import sys
