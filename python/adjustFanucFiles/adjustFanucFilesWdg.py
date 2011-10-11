@@ -15,6 +15,7 @@ History:
                     Modified to not overwrite existing files and log a warning instead.
                     Bug fix: if the name didn't contain "Unadjusted" then an error occurred.
 2011-08-02 ROwen    Improved testing of adjusted files.
+2011-10-11 ROwen    Added __all__; moved __main__ to a new script in bin/.
 """
 import math
 import os.path
@@ -32,7 +33,9 @@ import RO.StringUtil
 import RO.Wdg
 import fitPlugPlateMeas.fitData as fitData
 
-__version__ = "1.2.1"
+__all__ = ["__version__", "AdjustFanucFilesWdg"]
+
+__version__ = "1.2.2"
 
 class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
     """Adjust plFanuc drilling files to compensate for systematic errors in the drilling machine.
@@ -149,17 +152,3 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
                 outFile.write(line)
         
         self.logWdg.addMsg("Wrote %s; adjusted %s x,y positions from %s" % (outFileName, numAdj, fileName))
-
-if __name__ == "__main__":
-    import sys
-    filePathList = sys.argv[1:]
-    # strip first argument if it starts with "-", as happens when run as a Mac application
-    if filePathList and filePathList[0].startswith("-"):
-        filePathList = filePathList[1:]
-
-    root = Tkinter.Tk()
-    root.title("AdjustFanucFiles")
-    
-    fitPlugPlateWdg = AdjustFanucFilesWdg(master=root, filePathList=filePathList)
-    fitPlugPlateWdg.pack(side="left", expand=True, fill="both")
-    root.mainloop()

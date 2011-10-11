@@ -6,6 +6,7 @@ Usage:
 
 History:
 2011-02-28 ROwen    Adapted from the version for fitPlugPlateMeas
+2011-10-11 ROwen    Modified for new package layout with main script in bin/.
 """
 import os
 import shutil
@@ -29,19 +30,11 @@ sys.path = pathList + sys.path
 import adjustFanucFiles
 
 appName = "AdjustFanucFiles"
-mainScript = "adjustFanucFiles.py"
-mainProg = os.path.join(pythonRoot, mainScript)
+mainScript = "runAdjustFanucFiles.py"
+mainProg = os.path.join(pkgRoot, "bin", mainScript)
 appPath = os.path.join("dist", appName + ".app")
 iconFile = "%s.icns" % appName
 versStr = adjustFanucFiles.__version__
-
-inclModules = (
-#    "FileDialog",
-)
-# packages to include recursively
-inclPackages = (
-#    "RO",
-)
 
 # see plistlib for more info
 plist = dict(
@@ -77,8 +70,6 @@ setup(
         py2app = dict (
             plist = plist,
             iconfile = iconFile,
-            includes = inclModules,
-            packages = inclPackages,
         )
     ),
 )
