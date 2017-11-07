@@ -3,6 +3,7 @@
 
 History:
 2015-1-21 CS initial creation
+2015-10-09 CS allow for North and South in the fanuc file names.
 """
 import argparse
 import os
@@ -24,12 +25,12 @@ if __name__ == '__main__':
     if os.path.isdir(absPath):
         # grab all drill files for conversion
         basePath = absPath
-        globStr = os.path.join(absPath, "plFanuc*.par")
+        globStr = os.path.join(absPath, "pl*Fanuc*.par")
         fileList = glob.glob(globStr)
     else:
         # verify a file was passed and it has the right name
         basePath, fileName = os.path.split(absPath)
-        if not fileName.startswith("plFanuc"):
+        if not "FanucUnadjusted" in fileName:
             raise RuntimeError("%s is not a %s file!"%(fileName, "plFanuc"))
         fileList = [fileName]
 

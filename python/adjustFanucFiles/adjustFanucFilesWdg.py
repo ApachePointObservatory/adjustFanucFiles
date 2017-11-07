@@ -16,6 +16,7 @@ History:
                     Bug fix: if the name didn't contain "Unadjusted" then an error occurred.
 2011-08-02 ROwen    Improved testing of adjusted files.
 2011-10-11 ROwen    Added __all__; moved __main__ to a new script in bin/.
+2015-10-09 CSayres  File names changed from plFaunic to pl(North|South)Faunic, fix filename naming conventions.
 """
 import math
 import os.path
@@ -37,7 +38,7 @@ __all__ = ["__version__", "AdjustFanucFilesWdg", "getModel", "processFile"]
 
 __version__ = "1.2.2"
 
-fileNameSubRE = re.compile("plFanuc(?:Unadjusted)?(.*)", re.IGNORECASE)
+fileNameSubRE = re.compile("pl(.*)Fanuc(?:Unadjusted)?(.*)", re.IGNORECASE)
 xyPosRE  = re.compile(r"^(.* )X([-0-9.]+) +Y([-0-9.]+)( .*)?$")
 
 def getModel(configPath):
@@ -63,7 +64,6 @@ def processFile(filePath, model, logWdg=None):
     fileDir, fileName = os.path.split(filePath)
 
     baseName, ext = os.path.splitext(fileName)
-
     # reject files with "adjusted" in their name without rejecting "unadjusted";
     # this test is for files where "adjusted" is in an odd location
     lowBaseName = baseName.lower()
@@ -71,12 +71,12 @@ def processFile(filePath, model, logWdg=None):
         return
 
     # output name = input name - "Unadjusted" + "Adjusted"
-    outBaseName = fileNameSubRE.sub(r"plFanucAdjusted\1", baseName)
+    # outBaseName = fileNameSubRE.sub(r"FanucAdjusted\1", baseName)
+    outBaseName = baseName.replace("FanucUnadjusted", "FanucAdjusted")
     if outBaseName == baseName:
         outBaseName = outBaseName + "Adjusted"
     outFileName = outBaseName + ext
     outFilePath = os.path.join(fileDir, outFileName)
-
     if os.path.exists(outFilePath):
         if logWdg:
             logWdg.addMsg("Skipping %s: %s already exists" % (fileName, outFileName), severity=RO.Constants.sevWarning)
