@@ -91,7 +91,7 @@ def processFile(filePath, model, logWdg=None):
     adjComment = "(Adjusted qpMag=%s qpAngle=%s version=%s)\n" % (qpMag, qpAngle, __version__)
     lineNum = 0
     outDataList = []
-    with file(filePath, "rU") as inFile:
+    with open(filePath, "rU") as inFile:
         numAdj = 0
         for line in inFile:
             lineNum += 1
@@ -110,7 +110,7 @@ def processFile(filePath, model, logWdg=None):
                 numAdj += 1
             else:
                 outDataList.append(line)
-    with file(outFilePath, "w") as outFile:
+    with open(outFilePath, "w") as outFile:
         for line in outDataList:
             outFile.write(line)
     if logWdg:
