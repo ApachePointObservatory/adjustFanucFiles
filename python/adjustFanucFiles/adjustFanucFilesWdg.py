@@ -21,9 +21,10 @@ History:
 import math
 import os.path
 import re
-import ConfigParser
+# import ConfigParser
+from configparser import ConfigParser
 import traceback
-import Tkinter
+# import Tkinter
 import numpy
 import scipy.optimize
 import matplotlib
