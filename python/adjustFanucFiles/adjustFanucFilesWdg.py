@@ -76,7 +76,7 @@ def processFile(filePath, model, logWdg=None):
     outBaseName = baseName.replace("FanucUnadjusted", "FanucAdjusted")
     if outBaseName == baseName:
         outBaseName = outBaseName + "Adjusted"
-    outFileName = outBaseName + ext
+    outFileName = outBaseName + ".txt"
     outFilePath = os.path.join(fileDir, outFileName)
     if os.path.exists(outFilePath):
         if logWdg:
