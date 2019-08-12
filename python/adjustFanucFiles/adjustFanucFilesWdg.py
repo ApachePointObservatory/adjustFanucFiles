@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import with_statement
+
 """Adjust plFanuc drilling files
 
 History:
@@ -22,7 +22,7 @@ import math
 import os.path
 import re
 # import ConfigParser
-from configparser import ConfigParser
+from configparser import RawConfigParser
 import traceback
 # import Tkinter
 import numpy
@@ -45,7 +45,7 @@ xyPosRE  = re.compile(r"^(.* )X([-0-9.]+) +Y([-0-9.]+)( .*)?$")
 def getModel(configPath):
     if not os.path.isfile(configPath):
         raise RuntimeError("file not found")
-    config = ConfigParser.RawConfigParser()
+    config = RawConfigParser()
     config.read(configPath)
     qpMag = config.getfloat("quadrupole", "mag")
     qpAngle = config.getfloat("quadrupole", "angle")
