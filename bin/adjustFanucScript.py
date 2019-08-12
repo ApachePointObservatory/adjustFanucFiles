@@ -4,6 +4,7 @@
 History:
 2015-1-21 CS initial creation
 2015-10-09 CS allow for North and South in the fanuc file names.
+2019-08-12 CS add adjustFanucFiles.dat to repo (was looking for it in users home dir)
 """
 import argparse
 import os
@@ -34,8 +35,8 @@ if __name__ == '__main__':
             raise RuntimeError("%s is not a %s file!"%(fileName, "plFanuc"))
         fileList = [fileName]
 
-    homeDir = RO.OS.getHomeDir()
-    configPath = os.path.join(homeDir, ".adjustFanucFiles.dat")
+    productDir = os.getenv("ADJUSTFANUCFILES_DIR")
+    configPath = os.path.join(productDir, "etc", "adjustFanucFiles.dat")
 
     model = getModel(configPath)
     plateNums = []

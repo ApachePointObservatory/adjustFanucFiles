@@ -153,7 +153,7 @@ class AdjustFanucFilesWdg(RO.Wdg.DropletApp):
             self.logWdg.addMsg("Config file: %s" % (configPath,))
             self.logWdg.addMsg("Quadrupole magnitude = %s, angle = %s deg" % (qpMag, qpAngle))
 
-        except Exception, e:
+        except Exception as e:
             self.logWdg.addMsg("Error reading %s: %s" % (configPath, RO.StringUtil.strFromException(e)), severity=RO.Constants.sevError)
             self.logWdg.addMsg("Please quit, fix the config file and try again", severity=RO.Constants.sevError)
 
